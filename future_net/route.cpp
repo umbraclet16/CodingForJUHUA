@@ -6,7 +6,7 @@
 #include <queue>
 #include <memory.h>
 
-//ÄãÒªÍê³ÉµÄ¹¦ÄÜ×ÜÈë¿Ú
+//ä½ è¦å®Œæˆçš„åŠŸèƒ½æ€»å…¥å£
 void search_route(char *topo[5000], int edge_num, char *demand)
 {
 	// DATA EXTRACTION:
@@ -31,7 +31,7 @@ void search_route(char *topo[5000], int edge_num, char *demand)
 	testChange2List(nodeArray);
 
 	//priority_queue<int,vector<int>,greater<int> > pq;
-	unsigned short result[] = {2, 6, 3};//Ê¾ÀıÖĞµÄÒ»¸ö½â
+	unsigned short result[] = {2, 6, 3};//ç¤ºä¾‹ä¸­çš„ä¸€ä¸ªè§£
 	for (int i = 0; i < 3; i++)
 		record_result(result[i]);
 }
@@ -132,12 +132,12 @@ void getDemand(char *demand, int includingSet[MAX_INCLUDING_SET], int& sourceID,
 
 //====================================================================================================
 
-///×ª»»³ÉÁÚ½ÓÁ´±í´æ´¢
+///è½¬æ¢æˆé‚»æ¥é“¾è¡¨å­˜å‚¨
 void change2List(EdgeNode *node[MAX_VERTEX_NUM],int topoArray[][4],int edge_num)
 {
 	EdgeNode *pNode;
 	EdgeNode *pTemp;
-	bool repetition; ///¼ì²éÁ½µãÖ®¼äµÄ¶àÌõ±ß
+	bool repetition; ///æ£€æŸ¥ä¸¤ç‚¹ä¹‹é—´çš„å¤šæ¡è¾¹
 	for(int i=0; i<edge_num; i++)
 	{
 		repetition = false;
