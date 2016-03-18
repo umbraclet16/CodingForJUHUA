@@ -1,6 +1,6 @@
 #ifndef __ROUTE_H__
 #define __ROUTE_H__
-//test
+
 void search_route(char *graph[5000], int edge_num, char *condition);
 
 const int MAX_VERTEX_NUM = 600;		// max vertex number in the graph
