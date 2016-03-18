@@ -9,27 +9,27 @@
 //你要完成的功能总入口
 void search_route(char *topo[5000], int edge_num, char *demand)
 {
-	
+
 	//================================================================================
 	// DATA EXTRACTION:
 	// Extract data from charater string array topo[][] to 2 dimensional array 'topoArray'.
-	// string format: 
+	// string format:
 	// 		linkID, sourceID, destinationID, cost (end of line is not \n!)
-	int topoArray[edge_num][4];	
+	int topoArray[edge_num][4];
 	int includingSet[MAX_INCLUDING_SET];
 	int cntPass;					// record valid number of elements in includingSet.
 	int sourceID = 0, destinationID = 0;
 	memset(topoArray, 0, sizeof(topoArray));	// initialize to 0.
 	memset(includingSet, 0, sizeof(includingSet));
 
-	getTopoArray(edge_num, topo, topoArray);	
+	getTopoArray(edge_num, topo, topoArray);
 	getDemand(demand, includingSet, sourceID, destinationID, cntPass);
-	
+
 
 	//================================================================================
 	// CREAT ADJACENT LIST.
 	EdgeNode* nodeArray[MAX_VERTEX_NUM];		// array containing the first element of each list. Index of the array is nodeID.
-	
+
 
 
 
@@ -57,8 +57,8 @@ void search_route(char *topo[5000], int edge_num, char *demand)
 				k++;
 		}
 	}
-	
-	/* 
+
+	/*
 	// check the correctness of topoArray. CHECKED!
 	printf("topoArray is:\n");
 	for(i = 0; i < edge_num; i++){
@@ -70,7 +70,7 @@ void search_route(char *topo[5000], int edge_num, char *demand)
 }
 
 //====================================================================================================
-	void getDemand(char *demand, int includingSet[MAX_INCLUDING_SET], int& sourceID, int& destinationID, int& cntPass)	
+	void getDemand(char *demand, int includingSet[MAX_INCLUDING_SET], int& sourceID, int& destinationID, int& cntPass)
 {
 	// Extract data from demand[] to sourceID, destinationID and includingSet[]. includingSet contains invalid info!!(0)
 	int i, j;
@@ -89,7 +89,7 @@ void search_route(char *topo[5000], int edge_num, char *demand)
 			cntPass++;
 		}
 	}
-	
+
 	/*
 	// check the correctness of demand. CHECKED!
 	printf("srcID:%d, destID:%d,\nIncludingSet:",sourceID,destinationID);
@@ -100,3 +100,43 @@ void search_route(char *topo[5000], int edge_num, char *demand)
 }
 
 //====================================================================================================
+
+///转换成邻接链表存储
+void change2List(EdgeNode *node[MAX_VERTEX_NUM],int topoArray[][4],int edge_num)
+{
+    EdgeNode *pNode;
+    EdgeNode *pTemp;
+    bool repetition; ///检查两点之间的多条边
+    for(int i=0;i<edge_num;i++)
+    {
+        repetition = false;
+        pNode = node[topoArray[i][1]];
+        pTemp = pNode;
+        while(pNode->next!=NULL)
+        {
+            if(pNode->ID==topoArray[i][2])
+            {
+                repetition = true;
+                break;
+            }
+            pTemp = pNode;
+            pNode = pNode->next;
+        }
+        if(repetition)
+        {
+            if(pNode->weight>topoArray[i][3])
+            {
+                pNode->weight = topoArray[i][3];
+                pNode->linkID = topoArray[i][0];
+            }
+        }
+        else
+        {
+            pNode= new EdgeNode();
+            pTemp->next = pNode;
+            pNode->ID = topoArray[i][2];
+            pNode->linkID = topoArray[i][0];
+            pNode->weight = topoArray[i][3];
+        }
+    }
+}
