@@ -20,9 +20,6 @@ void getDemand(char *demand, int includingSet[MAX_INCLUDING_SET], int& sourceID,
 
 void change2List(EdgeNode *node[MAX_VERTEX_NUM],int topoArray[][4],int edge_num);
 
-<<<<<<< HEAD
 void testChange2List(EdgeNode *node[MAX_VERTEX_NUM]);
-=======
->>>>>>> d52bbdb8ee2c15aa41b4b8a59fc29482c76f77b2
 
 #endif
