@@ -2,6 +2,7 @@
 *.swp
 myNote.txt
 MyMmakefileNotWorking
+readme.txt
 /bin
 /build_private
 /future_net/tags
