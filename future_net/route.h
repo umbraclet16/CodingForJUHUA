@@ -17,7 +17,7 @@ typedef struct EdgeNode
 
 void getTopoArray(int edge_num, char *topo[5000], int topoArray[][4]);
 
-void getDemand(char *demand, int includingSet[50], int& sourceID, int& destinationID, int& cntPass);
+void getDemand(char *demand, int includingSet[MAX_INCLUDING_SET], int& sourceID, int& destinationID, int& cntPass);
 
 
 #endif
