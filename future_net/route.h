@@ -8,10 +8,10 @@ const int MAX_INCLUDING_SET = 50;	// max vertex number in the including set
 
 typedef struct EdgeNode
 {
-    int linkID;
-    int nodeID;
-    int weight;
-    EdgeNode *next;
+	int linkID;
+	int nodeID;
+	int weight;
+	EdgeNode *next;
 } EdgeNode;
 
 void getTopoArray(int edge_num, char *topo[5000], int topoArray[][4]);
