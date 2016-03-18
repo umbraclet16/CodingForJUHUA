@@ -70,7 +70,7 @@ void search_route(char *topo[5000], int edge_num, char *demand)
 }
 
 //====================================================================================================
-	void getDemand(char *demand, int includingSet[50], int& sourceID, int& destinationID, int& cntPass)	
+	void getDemand(char *demand, int includingSet[MAX_INCLUDING_SET], int& sourceID, int& destinationID, int& cntPass)	
 {
 	// Extract data from demand[] to sourceID, destinationID and includingSet[]. includingSet contains invalid info!!(0)
 	int i, j;
