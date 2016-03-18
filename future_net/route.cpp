@@ -99,38 +99,6 @@ void getDemand(char *demand, int includingSet[MAX_INCLUDING_SET], int& sourceID,
 }
 
 //====================================================================================================
-void getDemand(char *demand, int includingSet[MAX_INCLUDING_SET], int& sourceID, int& destinationID, int& cntPass)
-{
-	// Extract data from demand[] to sourceID, destinationID and includingSet[]. includingSet contains invalid info!!(0)
-	int i, j;
-	for(i = 0; demand[i] != ','; i++)
-		sourceID = sourceID * 10 + demand[i] - '0';
-	i++;
-	for(	 ; demand[i] != ','; i++)
-		destinationID = destinationID * 10 +demand[i] - '0';
-	i++;
-	cntPass = 1;
-	for(j = 0; (demand[i]>='0' && demand[i]<='9') || demand[i]=='|'; i++)
-	{
-		if(demand[i] != '|')
-			includingSet[j] = includingSet[j] * 10 + demand[i] - '0';
-		else
-		{
-			j++;
-			cntPass++;
-		}
-	}
-
-	/*
-	// check the correctness of demand. CHECKED!
-	printf("srcID:%d, destID:%d,\nIncludingSet:",sourceID,destinationID);
-	for(i = 0; i < cntPass; i++) printf("%d ",includingSet[i]); printf("\n");
-	*/
-
-	return;
-}
-
-//====================================================================================================
 
 ///转换成邻接链表存储
 void change2List(EdgeNode *node[MAX_VERTEX_NUM],int topoArray[][4],int edge_num)
@@ -145,7 +113,7 @@ void change2List(EdgeNode *node[MAX_VERTEX_NUM],int topoArray[][4],int edge_num)
 		pTemp = pNode;
 		while(pNode->next!=NULL)
 		{
-			if(pNode->ID==topoArray[i][2])
+			if(pNode->nodeID==topoArray[i][2])
 			{
 				repetition = true;
 				break;
@@ -165,7 +133,7 @@ void change2List(EdgeNode *node[MAX_VERTEX_NUM],int topoArray[][4],int edge_num)
 		{
 			pNode= new EdgeNode();
 			pTemp->next = pNode;
-			pNode->ID = topoArray[i][2];
+			pNode->nodeID = topoArray[i][2];
 			pNode->linkID = topoArray[i][0];
 			pNode->weight = topoArray[i][3];
 		}
@@ -180,7 +148,7 @@ void testChange2List(EdgeNode *node[MAX_VERTEX_NUM])
 		pNode = node[i];
 		while(pNode!=NULL)
 		{
-			printf("LinkID: %d,sourceID: %d, DestinationID: %d,cost: %d\n",pNode->linkID,i,pNode->noteID,pNode->weight);
+			printf("LinkID: %d,sourceID: %d, DestinationID: %d,cost: %d\n",pNode->linkID,i,pNode->nodeID,pNode->weight);
 			pNode = pNode->next;
 		}
 	}
