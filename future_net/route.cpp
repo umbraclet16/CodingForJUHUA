@@ -1,7 +1,6 @@
 #include "route.h"
 #include "lib_record.h"
 #include <stdio.h>
-//
 #include <queue>
 #include <memory.h>
 
@@ -27,7 +26,12 @@ void search_route(char *topo[5000], int edge_num, char *demand)
 	EdgeNode* nodeArray[MAX_VERTEX_NUM];		// array containing the first element of each list. Index of the array is nodeID.
 	memset(nodeArray,0,sizeof(nodeArray));
 	change2List(nodeArray,topoArray,edge_num);
+#ifdef ROUTEDEBUG
 	testChange2List(nodeArray);
+#endif // DEBUG
+
+	bool nodeArrayState[MAX_VERTEX_NUM];
+	memset(nodeArray,0,sizeof(nodeArrayState));
 
 	//priority_queue<int,vector<int>,greater<int> > pq;
 	unsigned short result[] = {2, 6, 3};//示例中的一个解

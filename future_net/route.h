@@ -6,6 +6,8 @@ void search_route(char *graph[5000], int edge_num, char *condition);
 const int MAX_VERTEX_NUM = 600;		// max vertex number in the graph
 const int MAX_INCLUDING_SET = 50;	// max vertex number in the including set
 
+#define ROUTEDEBUG
+
 typedef struct EdgeNode
 {
 	int linkID;
