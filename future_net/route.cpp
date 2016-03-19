@@ -1,4 +1,3 @@
-
 #include "route.h"
 #include "lib_record.h"
 #include <stdio.h>
@@ -110,8 +109,17 @@ void change2List(EdgeNode *node[MAX_VERTEX_NUM],int topoArray[][4],int edge_num)
 	{
 		repetition = false;
 		pNode = node[topoArray[i][1]];
+		if(pNode==NULL)
+		{
+			pNode = new EdgeNode();
+			node[topoArray[i][1]] = pNode;
+			pNode->nodeID = topoArray[i][2];
+			pNode->linkID = topoArray[i][0];
+			pNode->weight = topoArray[i][3];
+			continue;
+		}
 		pTemp = pNode;
-		while(pNode->next!=NULL)
+		while(pNode!=NULL)
 		{
 			if(pNode->nodeID==topoArray[i][2])
 			{
