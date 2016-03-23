@@ -13,7 +13,7 @@ void search_route(char *topo[5000], int edge_num, char *demand)
 	// 		linkID, sourceID, destinationID, cost (end of line is not \n!)
 	int topoArray[edge_num][4];
 	int includingSet[MAX_INCLUDING_SET];
-	int cntPass;					// record valid number of elements in includingSet.
+	int cntPass = 0;					// record valid number of elements in includingSet.
 	int sourceID = 0, destinationID = 0;
 	memset(topoArray, 0, sizeof(topoArray));	// initialize to 0.
 	memset(includingSet, 0, sizeof(includingSet));
@@ -30,15 +30,27 @@ void search_route(char *topo[5000], int edge_num, char *demand)
 	testChange2List(nodeArray);
 #endif // DEBUG
 
+#ifdef ROUTEDEBUG
 	bool nodeArrayState[MAX_VERTEX_NUM];
-	memset(nodeArray,0,sizeof(nodeArrayState));
+	memset(nodeArrayState,0,sizeof(nodeArrayState));
 
-	//priority_queue<int,vector<int>,greater<int> > pq;
-	unsigned short result[] = {2, 6, 3};//示例中的一个解
-	for (int i = 0; i < 3; i++)
-		record_result(result[i]);
+	//寻路
+	int dijkstraDistance[MAX_VERTEX_NUM];
+	memset(dijkstraDistance,0,sizeof(dijkstraDistance));
+	//记录进过的节点
+	int recordRoute[MAX_VERTEX_NUM][MAX_VERTEX_NUM];
+	memset(recordRoute,0,sizeof(recordRoute));
+	//记录每条路径的深度
+	int recordDepth[MAX_VERTEX_NUM];
+	memset(recordDepth,0,sizeof(recordDepth));
+	getDijkstra(nodeArray,dijkstraDistance,recordRoute,recordDepth,sourceID);
+#endif // ROUTEDEBUG
+#ifdef ROUTEDEBUG
+	testGetDijkstra(dijkstraDistance,recordRoute,recordDepth);
+#endif // ROUTEDEBUG
+	getDFS(nodeArray,includingSet,cntPass,sourceID,destinationID);
+	return;
 }
-
 
 //====================================================================================================
 // FUNCTIONS
@@ -152,6 +164,7 @@ void change2List(EdgeNode *node[MAX_VERTEX_NUM],int topoArray[][4],int edge_num)
 	}
 }
 
+#ifdef ROUTEDEBUG
 void testChange2List(EdgeNode *node[MAX_VERTEX_NUM])
 {
 	EdgeNode *pNode;
@@ -165,3 +178,271 @@ void testChange2List(EdgeNode *node[MAX_VERTEX_NUM])
 		}
 	}
 }
+#endif // ROUTEDEBUG
+
+#ifdef ROUTEDEBUG
+//actualNodes用来将来进一步做优化
+void getDijkstra(EdgeNode *node[MAX_VERTEX_NUM],int dijkstraDistance[MAX_VERTEX_NUM],int recordRoute[MAX_VERTEX_NUM][MAX_VERTEX_NUM],int recordDepth[MAX_VERTEX_NUM],int sourceID)
+{
+	int ready2Get[MAX_VERTEX_NUM];
+	memset(ready2Get,0,sizeof(ready2Get));
+	//初始化alreadyGet,和ready2Get,1表示已经找到最短路径
+	ready2Get[sourceID] = 1;
+	EdgeNode *pNode = NULL;
+	for(int i=1; i<MAX_VERTEX_NUM; i++)
+	{
+		pNode = node[sourceID];
+		updateBaseOnCurrentNode(pNode,dijkstraDistance,recordRoute,recordDepth,sourceID);
+		sourceID = getMinNode(dijkstraDistance,ready2Get);
+	}
+	return;
+}
+#endif // ROUTEDEBUG
+
+#ifdef ROUTEDEBUG
+//实现获取距离currentID最短的node，更新recordRoute和recordDepth
+void updateBaseOnCurrentNode(EdgeNode *node,int dijkstraDistance[MAX_VERTEX_NUM],int recordRoute[MAX_VERTEX_NUM][MAX_VERTEX_NUM],int recordDepth[MAX_VERTEX_NUM],int currentID)
+{
+	while(node!=NULL)
+	{
+		//对于还没有更新距离点的更新方法
+		if(dijkstraDistance[node->nodeID]>0)
+		{
+			if(dijkstraDistance[currentID]+node->weight<dijkstraDistance[node->nodeID])
+			{
+				dijkstraDistance[node->nodeID] = dijkstraDistance[currentID]+node->weight;
+				//涉及到路径的存储方法
+				copyRoute(recordRoute,recordDepth,currentID,node->nodeID);
+			}
+			else if(dijkstraDistance[currentID]+node->weight==dijkstraDistance[node->nodeID])
+			{
+				//相等的时候去涉及点数较大的边
+				if((recordDepth[currentID]+1)>recordDepth[node->nodeID])
+				{
+					copyRoute(recordRoute,recordDepth,currentID,node->nodeID);
+				}
+			}
+		}
+		else
+		{
+			dijkstraDistance[node->nodeID] = dijkstraDistance[currentID]+node->weight;
+			copyRoute(recordRoute,recordDepth,currentID,node->nodeID);
+		}
+		node = node->next;
+	}
+	return;
+}
+#endif // ROUTEDEBUG
+
+#ifdef ROUTEDEBUG
+//将currentID对应的路径复制到nodeID中
+void copyRoute(int recordRoute[MAX_VERTEX_NUM][MAX_VERTEX_NUM],int recordDepth[MAX_VERTEX_NUM],int currentID,int nodeID)
+{
+	memcpy(recordRoute[nodeID],recordRoute[currentID],sizeof(recordRoute[nodeID]));
+	recordRoute[nodeID][recordDepth[currentID]] = currentID;
+	recordDepth[nodeID] = recordDepth[currentID]+1;
+	return;
+}
+#endif // ROUTEDEBUG
+
+#ifdef ROUTEDEBUG
+//从待选队列中选取一个最短点
+int getMinNode(int dijkstraDistance[MAX_VERTEX_NUM],int ready2Get[MAX_VERTEX_NUM])
+{
+	int cost = 15000;
+	int ID = 0;
+	for(int i=0; i<MAX_VERTEX_NUM; i++)
+	{
+		//为零说明此点没有得到更新
+		if(dijkstraDistance[i]==0)
+		{
+			continue;
+		}
+		if(ready2Get[i]!=1)
+		{
+			if(cost>dijkstraDistance[i])
+			{
+				cost = dijkstraDistance[i];
+				ID = i;
+			}
+		}
+	}
+	ready2Get[ID] = 1;
+	return ID;
+}
+#endif // ROUTEDEBUG
+
+#ifdef ROUTEDEBUG
+void testGetDijkstra(int dijkstraDistance[MAX_VERTEX_NUM],int recordRoute[MAX_VERTEX_NUM][MAX_VERTEX_NUM],int recordDepth[MAX_VERTEX_NUM])
+{
+	FILE *fp;
+	fp = fopen("dijkstraDistance.txt","w+");
+	for(int i=0; i<MAX_VERTEX_NUM; i++)
+	{
+		fprintf(fp,"%d ",dijkstraDistance[i]);
+	}
+	fprintf(fp,"\n");
+	fclose(fp);
+	fp = fopen("recordRoute.txt","w+");
+	for(int i=0; i<MAX_VERTEX_NUM; i++)
+	{
+		for(int j=0; j<recordDepth[i]; j++)
+		{
+			fprintf(fp,"%d ",recordRoute[i][j]);
+		}
+		fprintf(fp,"%d\n",i);
+	}
+	fclose(fp);
+	fp = fopen("recordDepth.txt","w+");
+	for(int i=0; i<MAX_VERTEX_NUM; i++)
+	{
+		fprintf(fp,"%d  ",recordDepth[i]);
+	}
+	fprintf(fp,"\n");
+	fclose(fp);
+	return;
+}
+#endif // ROUTEDEBUG
+
+void getDFS(EdgeNode *node[MAX_VERTEX_NUM],int nodeDemand[MAX_INCLUDING_SET],int cntPass,int sourceID,int destinationID)
+{
+	bool hasVisited[MAX_VERTEX_NUM][MAX_VERTEX_NUM];
+	memset(hasVisited,0,sizeof(hasVisited));
+	bool inStack[MAX_VERTEX_NUM];
+	memset(inStack,0,sizeof(inStack));
+	int nodeSatck[MAX_VERTEX_NUM];
+	memset(nodeSatck,0,sizeof(nodeSatck));
+	int stackDepth = 0;
+	nodeSatck[stackDepth] = sourceID;
+	stackDepth++;
+	inStack[sourceID] = true;
+	int tempID = sourceID;
+	EdgeNode *pNode = node[sourceID];
+	int numbers = 0;
+	int recordRoute[MAX_VERTEX_NUM];
+	memset(recordRoute,0,sizeof(recordRoute));
+	int tempRoute[MAX_VERTEX_NUM];
+	memset(tempRoute,0,sizeof(tempRoute));
+	int length = 0;
+	int cost = 150000;
+	int tempCost = 0;
+	int temp[MAX_VERTEX_NUM];
+	memcpy(temp,nodeDemand,sizeof(temp));
+	while(stackDepth>0)
+	{
+		while(pNode!=NULL)
+		{
+			if(!inStack[pNode->nodeID]&&!hasVisited[tempID][pNode->nodeID])
+			{
+				break;
+			}
+			else
+			{
+				pNode = pNode->next;
+			}
+		}
+		//如果pNode为空则选择退栈
+		if(pNode==NULL)
+		{
+			stackDepth--;
+			if(stackDepth>0)
+			{
+				pNode = node[nodeSatck[stackDepth-1]];
+				tempID = nodeSatck[stackDepth-1];
+				if(checkInDemand(nodeDemand,nodeSatck[stackDepth]))
+				{
+					numbers--;
+				}
+				memset(hasVisited[nodeSatck[stackDepth]],0,sizeof(hasVisited[nodeSatck[stackDepth]]));
+				inStack[nodeSatck[stackDepth]] = false;
+			}
+		}
+		else  //入栈
+		{
+			nodeSatck[stackDepth] = pNode->nodeID;
+			hasVisited[tempID][pNode->nodeID] = true;
+			inStack[pNode->nodeID] = true;
+			if(checkInDemand(nodeDemand,pNode->nodeID))
+			{
+				numbers++;
+			}
+			stackDepth++;
+			if(pNode->nodeID==destinationID)
+			{
+				if(numbers==cntPass)
+				{
+					//检查路径权值
+					memset(tempRoute,0,sizeof(tempRoute));
+					tempCost = getCost(node,nodeSatck,tempRoute,stackDepth);
+					if(tempCost<cost)
+					{
+						cost = tempCost;
+						memcpy(recordRoute,tempRoute,sizeof(tempRoute));
+						length = stackDepth-1;
+#ifdef ROUTEDEBUG
+						printRoute(recordRoute,length,cost);
+#endif // ROUTEDEBUG
+					}
+				}
+				stackDepth--;
+				if(checkInDemand(nodeDemand,nodeSatck[stackDepth]))
+				{
+					numbers--;
+				}
+				memset(hasVisited[nodeSatck[stackDepth]],0,sizeof(hasVisited[nodeSatck[stackDepth]]));
+				inStack[nodeSatck[stackDepth]] = false;
+			}
+			pNode = node[nodeSatck[stackDepth-1]];
+			tempID = nodeSatck[stackDepth-1];
+		}
+	}
+	for(int i=0; i<length; i++)
+	{
+		record_result(recordRoute[i]);
+	}
+}
+
+bool checkInDemand(int nodeDemand[MAX_INCLUDING_SET],int ID)
+{
+	for(int i=0; i<MAX_INCLUDING_SET; i++)
+	{
+		if(nodeDemand[i]==ID)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+//获得路径序列的cost
+int getCost(EdgeNode *node[MAX_VERTEX_NUM],int sequence[MAX_VERTEX_NUM],int route[MAX_VERTEX_NUM],int length)
+{
+	EdgeNode* pNode = NULL;
+	int cost = 0;
+	for(int i=0; i<length-1; i++)
+	{
+		pNode = node[sequence[i]];
+		while(pNode!=NULL&&pNode->nodeID!=sequence[i+1])
+		{
+			pNode = pNode->next;
+		}
+		if(pNode!=NULL)
+		{
+			cost += pNode->weight;
+			route[i] = pNode->linkID;
+		}
+	}
+	return cost;
+}
+
+#ifdef ROUTEDEBUG
+void printRoute(int route[MAX_VERTEX_NUM],int length,int value)
+{
+	printf("Cost = %d\n",value);
+	for(int i=0; i<length; i++)
+	{
+		printf("%d ",route[i]);
+	}
+	printf("\n");
+}
+#endif // ROUTEDEBUG
