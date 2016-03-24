@@ -324,21 +324,22 @@ int dfsTraverse(int s, int destinationID, vector <unsigned short> &result, EdgeN
 			while(done[traverse->nodeID] == true){		// easily cause "segmentation fault(core dump)"!!!
 
 
-								printf("traverse->node=%d already visited!\n.",traverse->nodeID);
+								printf("traverse->node=%d already visited!\n",traverse->nodeID);
 				// !!! 0->2->3->1后，边4退栈，边6入栈，6是无效边，需弹出；
 				// 另需压入一个点，否则点2早于边5退栈，后面程序全部跑乱.
 				//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 									//printf("!!OUT STACK:\t EDGE %d\n",*(--result_temp.end()));
 				//result_temp.pop_back();			//!!!!!!!!!!!!
-				//passNodeSet.push_back(-1);		// doesn't matter what it is.
+				//passNodeSet.pop_back();		// doesn't matter what it is.
 				//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 				if(traverse->next != NULL){
 					traverse = traverse->next;	printf("new traverse is %d.\n",traverse->nodeID);
-				//passNodeSet.push_back(-1);		// doesn't matter what it is.
 				}
 				else{
 					traverse = NULL;	printf("new traverse is NULL.\n");
+					c.push((StackNode){c.top().ID,NULL});
+					passNodeSet.push_back(c.top().ID);
 					break;
 				}
 			}
@@ -354,18 +355,17 @@ int dfsTraverse(int s, int destinationID, vector <unsigned short> &result, EdgeN
 										printf("ds[%d]=%d\n",traverse->nodeID,ds[traverse->nodeID]);
 			
 			temp = traverse->nodeID;					printf("next=%d\n",temp);
-			traverse = nodeArray[temp];					printf("%p\n",traverse);
+			traverse = nodeArray[temp];					//printf("%p\n",traverse);
 			//if((traverse!=NULL) && (done[traverse->nodeID]!=true)){//必须拆开，否则第二个条件可能导致崩溃.
 			if(traverse!=NULL){
-				if(done[traverse->nodeID]!=true)
-											printf("done[%d] is true.\n",traverse->nodeID);
+				if(done[traverse->nodeID])
+					continue;
 				c.push((StackNode){temp,traverse});
 				//>>存储路径和此边的起点！>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 				result_temp.push_back(traverse->linkID);		printf("IN STACK:\t EDGE %d\n",traverse->linkID);
 				passNodeSet.push_back(temp);				printf("IN STACK: NODE %d\n",c.top().ID);
 				//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-				
 			}
 			else{
 				c.push((StackNode){temp,NULL});
@@ -387,7 +387,7 @@ int dfsTraverse(int s, int destinationID, vector <unsigned short> &result, EdgeN
 
 			}
 				done[temp] = true;
-										//printf("IN STACK: %d, done[%d] = true.\n",temp,temp);
+										printf("IN STACK: %d, done[%d] = true.\n",temp,temp);
 		}
 		else{
 			// record path and passing nodes.
@@ -407,7 +407,7 @@ int dfsTraverse(int s, int destinationID, vector <unsigned short> &result, EdgeN
 			
 			done[c.top().ID] = false;		printf("OUT STACK: %d, done[%d]=false\n",c.top().ID,c.top().ID);
 			c.pop();
-								//printf("1 OUT STACK: NODE %d\n",*(--passNodeSet.end()));
+								printf("1 OUT STACK: NODE %d\n",*(--passNodeSet.end()));
 			passNodeSet.pop_back();
 			//result_temp.pop_back();			
 			
@@ -419,12 +419,13 @@ int dfsTraverse(int s, int destinationID, vector <unsigned short> &result, EdgeN
 			//==================================================================
 			tempID = c.top().ID;
 			traverse = c.top().ptr;			//printf("STACK TOP is %d, next is %d.\n",c.top().ID,traverse->nodeID);
-			/*
+
 			if(traverse->next != NULL)
 				traverse = traverse->next;	
 			else
 				traverse = NULL;
-			*/
+			
+			/*
 			do{						printf("traverse->node = %d.\n",traverse->nodeID);
 				if(traverse->next != NULL)
 					traverse = traverse->next;
@@ -433,6 +434,7 @@ int dfsTraverse(int s, int destinationID, vector <unsigned short> &result, EdgeN
 					break;
 				}
 			}while(done[traverse->nodeID] == true);
+			*/
 
 
 
@@ -443,11 +445,11 @@ int dfsTraverse(int s, int destinationID, vector <unsigned short> &result, EdgeN
 			c.push((StackNode){tempID,traverse});//printf("STACK TOP is %d, next is %d.\n",c.top().ID,traverse->nodeID);
 
 			// 随栈的更新同步更新路径和节点>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-										//printf("OUT STACK:\t EDGE %d\n",*(--result_temp.end()));
+										printf("1 OUT STACK:\t EDGE %d\n",*(--result_temp.end()));
 			result_temp.pop_back();
 			// 某点弹出一条边后，转而压栈下一条边(终点需未访问！)，此时需更新记录的路径，而不需更新记录的节点（因为两条边起点相同）
-			if(traverse != NULL && done[traverse->nodeID]!=true){
-				result_temp.push_back(traverse->linkID); 	//printf("IN STACK:\t EDGE %d\n",traverse->linkID);
+			if(traverse != NULL){
+				result_temp.push_back(traverse->linkID); 	printf("IN STACK:\t EDGE %d\n",traverse->linkID);
 			}
 			/*
 			else{
