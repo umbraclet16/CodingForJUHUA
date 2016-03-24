@@ -56,7 +56,7 @@ void search_route(char *topo[5000], int edge_num, char *demand)
 	//================================================================================
 	// 无解判断
 	for(int i = 0; i < cntPass+1; i++)
-	if(nodeArray[passSet[i]] == NULL) return;		// 起点或V'中的任一点出度为0，则无解
+		if(nodeArray[passSet[i]] == NULL) return;		// 起点或V'中的任一点出度为0，则无解
 	//TODO: V'中任一点或终点入度为0，则无解;
 	//TODO: V'中所有点、起点、终点必在同一深度优先树上，否则无解。跑一遍DFS的时间消耗？
 
@@ -354,8 +354,10 @@ int dfsTraverse(int s, int destinationID, vector <unsigned short> &result, EdgeN
 										printf("ds[%d]=%d\n",traverse->nodeID,ds[traverse->nodeID]);
 			
 			temp = traverse->nodeID;					printf("next=%d\n",temp);
-			traverse = nodeArray[temp];	// MB的老子真是服了。。什么情况啊？？？这句为啥挂？
-			if((traverse!=NULL) && (done[traverse->nodeID]!=true)){//第一个条件不能删。。traverse被更改了...
+			traverse = nodeArray[temp];					printf("%p\n",traverse);
+			//if((traverse!=NULL) && (done[traverse->nodeID]!=true)){//必须拆开，否则第二个条件可能导致崩溃.
+			if(traverse!=NULL){
+				if(done[traverse->nodeID]!=true)
 											printf("done[%d] is true.\n",traverse->nodeID);
 				c.push((StackNode){temp,traverse});
 				//>>存储路径和此边的起点！>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -363,12 +365,13 @@ int dfsTraverse(int s, int destinationID, vector <unsigned short> &result, EdgeN
 				passNodeSet.push_back(temp);				printf("IN STACK: NODE %d\n",c.top().ID);
 				//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
+				
 			}
 			else{
 				c.push((StackNode){temp,NULL});
 				
 				// DEBUG!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-				printf("node[%d] visited!!!!\n",traverse->nodeID);
+				//printf("node[%d] visited!!!!\n",traverse->nodeID);
 				printf("size of passNodeSet is %d\n",passNodeSet.size());
 				for(int index = 0; index < passNodeSet.size(); index++)
 					printf("%d\t",passNodeSet[index]);
