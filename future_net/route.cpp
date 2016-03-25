@@ -322,15 +322,28 @@ int dfsTraverse(int s, int destinationID, vector <unsigned short> &result, EdgeN
 										printf("in while loop, c.size=%d\n",c.size());
 		if(traverse != NULL){
 			while(done[traverse->nodeID] == true){		// easily cause "segmentation fault(core dump)"!!!
-								printf("traverse->node=%d already visited!\n",traverse->nodeID);
-
+										printf("traverse->node=%d already visited!\n",traverse->nodeID);
 				if(traverse->next != NULL){
-					traverse = traverse->next;	printf("new traverse is %d.\n",traverse->nodeID);
+					traverse = traverse->next;		printf("new traverse is %d.\n",traverse->nodeID);
+
+					//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+					temp = c.top().ID;
+					c.pop();
+					result_temp.pop_back();
+					result_temp.push_back(traverse->linkID);
+					c.push((StackNode){temp,traverse});
+					// passNodeSet不变
+					// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 				}
 				else{
-					traverse = NULL;	printf("new traverse is NULL.\n");
-					c.push((StackNode){c.top().ID,NULL});
-					passNodeSet.push_back(c.top().ID);
+					traverse = NULL;			printf("new traverse is NULL.\n");
+
+					//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+					temp = c.top().ID;
+					c.pop();
+					result_temp.pop_back();
+					c.push((StackNode){temp,NULL});
+					passNodeSet.pop_back();	//弹出终点
 					break;
 				}
 			}
@@ -349,8 +362,8 @@ int dfsTraverse(int s, int destinationID, vector <unsigned short> &result, EdgeN
 			traverse = nodeArray[temp];					//printf("%p\n",traverse);
 			//if((traverse!=NULL) && (done[traverse->nodeID]!=true)){//必须拆开，否则第二个条件可能导致崩溃.
 			if(traverse!=NULL){
-				if(done[traverse->nodeID])
-					continue;
+				//if(done[traverse->nodeID])
+				//	continue;
 				c.push((StackNode){temp,traverse});
 				//>>存储路径和此边的起点！>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 				result_temp.push_back(traverse->linkID);		printf("IN STACK:\t EDGE %d\n",traverse->linkID);
@@ -374,6 +387,7 @@ int dfsTraverse(int s, int destinationID, vector <unsigned short> &result, EdgeN
 				printf("\n");
 
 				printf("size of c is %d\n",c.size());
+				//stack<StackNode,vector<StackNode> > cc(c.size());
 				// 需要写一个构造函数，定义一个新变量cc=c，c.top(),c.pop(),实现栈的遍历.
 				printf("\n");
 				// DEBUG!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -408,8 +422,7 @@ int dfsTraverse(int s, int destinationID, vector <unsigned short> &result, EdgeN
 			done[c.top().ID] = false;		printf("OUT STACK: %d, done[%d]=false\n",c.top().ID,c.top().ID);
 			c.pop();
 								printf("1 OUT STACK: NODE %d\n",*(--passNodeSet.end()));
-			passNodeSet.pop_back();
-			//result_temp.pop_back();			
+			passNodeSet.pop_back();		//// HERE IS THE PROBLEM!!! NODE 8 is popped, afterwards not pushed back.
 			
 
 
@@ -420,10 +433,13 @@ int dfsTraverse(int s, int destinationID, vector <unsigned short> &result, EdgeN
 			tempID = c.top().ID;
 			traverse = c.top().ptr;			//printf("STACK TOP is %d, next is %d.\n",c.top().ID,traverse->nodeID);
 
-			if(traverse->next != NULL)
+			if(traverse->next != NULL){
 				traverse = traverse->next;	
-			else
+				passNodeSet.push_back(abc);
+			}
+			else{
 				traverse = NULL;
+			}
 			
 			/*
 			do{						printf("traverse->node = %d.\n",traverse->nodeID);
