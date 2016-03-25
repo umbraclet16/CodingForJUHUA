@@ -322,16 +322,7 @@ int dfsTraverse(int s, int destinationID, vector <unsigned short> &result, EdgeN
 										printf("in while loop, c.size=%d\n",c.size());
 		if(traverse != NULL){
 			while(done[traverse->nodeID] == true){		// easily cause "segmentation fault(core dump)"!!!
-
-
 								printf("traverse->node=%d already visited!\n",traverse->nodeID);
-				// !!! 0->2->3->1后，边4退栈，边6入栈，6是无效边，需弹出；
-				// 另需压入一个点，否则点2早于边5退栈，后面程序全部跑乱.
-				//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-									//printf("!!OUT STACK:\t EDGE %d\n",*(--result_temp.end()));
-				//result_temp.pop_back();			//!!!!!!!!!!!!
-				//passNodeSet.pop_back();		// doesn't matter what it is.
-				//<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 				if(traverse->next != NULL){
 					traverse = traverse->next;	printf("new traverse is %d.\n",traverse->nodeID);
@@ -375,6 +366,15 @@ int dfsTraverse(int s, int destinationID, vector <unsigned short> &result, EdgeN
 				printf("size of passNodeSet is %d\n",passNodeSet.size());
 				for(int index = 0; index < passNodeSet.size(); index++)
 					printf("%d\t",passNodeSet[index]);
+				printf("\n");
+
+				printf("size of result_temp is %d\n",result_temp.size());
+				for(int index = 0; index < result_temp.size(); index++)
+					printf("%d\t",result_temp[index]);
+				printf("\n");
+
+				printf("size of c is %d\n",c.size());
+				// 需要写一个构造函数，定义一个新变量cc=c，c.top(),c.pop(),实现栈的遍历.
 				printf("\n");
 				// DEBUG!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
