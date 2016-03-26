@@ -435,7 +435,7 @@ int dfsTraverse(int s, int destinationID, vector <unsigned short> &result, EdgeN
 
 			if(traverse->next != NULL){
 				traverse = traverse->next;	
-				passNodeSet.push_back(abc);
+				//passNodeSet.push_back(abc);
 			}
 			else{
 				traverse = NULL;
